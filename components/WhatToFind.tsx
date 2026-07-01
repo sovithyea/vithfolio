@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/stores/gameStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { REGIONS } from '@/lib/regions';
-import { panToMarker } from '@/lib/travel';
+import { panToMarker, travelTo } from '@/lib/travel';
 import { useDismiss } from '@/hooks/useDismiss';
 import { useMobile } from '@/hooks/useMobile';
 
@@ -66,10 +66,20 @@ export default function WhatToFind() {
   useDismiss(panelRef, () => setOpen(false), open);
 
   const currentRegion  = useGameStore((s) => s.currentRegion);
+  const transitioning  = useGameStore((s) => s.transitioning);
   const markers        = useGameStore((s) => s.markers[currentRegion] ?? []);
   const visitedMarkers = useSettingsStore((s) => s.visitedMarkers);
   const toggleVisited  = useSettingsStore((s) => s.toggleVisited);
   const accent         = REGIONS[currentRegion].accentColor;
+  const otherRegion    = currentRegion === 'phnom-penh' ? 'melbourne' : 'phnom-penh';
+  const otherLabel     = REGION_LABELS[otherRegion];
+
+  const flyToOther = () => {
+    if (transitioning) return;
+    setOpen(false);
+    useGameStore.getState().setTransitioning(true);
+    travelTo(otherRegion);
+  };
 
   const grouped = markers.reduce<Record<string, typeof markers>>((acc, m) => {
     const d = m.district ?? 'Other';
@@ -89,9 +99,23 @@ export default function WhatToFind() {
         <p style={{ margin: 0, fontFamily: 'var(--font-caveat, cursive)', fontWeight: 700, fontSize: 20, color: '#C96A43' }}>
           Places
         </p>
-        <p style={{ margin: '1px 0 0', fontFamily: 'var(--font-caveat, cursive)', fontWeight: 600, fontSize: 14, color: '#3F3226' }}>
-          {REGION_LABELS[currentRegion]}
-        </p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 }}>
+          <p style={{ margin: 0, fontFamily: 'var(--font-caveat, cursive)', fontWeight: 600, fontSize: 14, color: '#3F3226' }}>
+            {REGION_LABELS[currentRegion]}
+          </p>
+          <button
+            onClick={flyToOther}
+            disabled={transitioning}
+            style={{
+              background: 'none', border: 'none', padding: '2px 0', cursor: transitioning ? 'wait' : 'pointer',
+              fontFamily: 'var(--font-caveat, cursive)', fontWeight: 700, fontSize: 13,
+              color: '#8a7a63', opacity: transitioning ? 0.5 : 1,
+              display: 'flex', alignItems: 'center', gap: 3,
+            }}
+          >
+            ✈ {otherLabel}
+          </button>
+        </div>
       </div>
       <div style={{ padding: '10px 16px 14px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         {markers.length === 0 ? (

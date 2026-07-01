@@ -10,6 +10,7 @@ type GameState = {
   transitioning: boolean;
   facing: { x: number; y: number };
   editMode: boolean;
+  mapReady: boolean;
   markers: Record<string, ProjectMarker[]>;
   pendingCoords: { lng: number; lat: number } | null;
   editingMarkerId: string | null;
@@ -20,6 +21,7 @@ type GameState = {
   setTransitioning: (v: boolean) => void;
   setFacing: (x: number, y: number) => void;
   setEditMode: (v: boolean) => void;
+  setMapReady: (v: boolean) => void;
   setMarkers: (region: string, markers: ProjectMarker[]) => void;
   setPendingCoords: (coords: { lng: number; lat: number } | null) => void;
   setEditingMarkerId: (id: string | null) => void;
@@ -33,6 +35,7 @@ export const useGameStore = create<GameState>((set) => ({
   transitioning: false,
   facing: { x: 0, y: 1 },
   editMode: false,
+  mapReady: false,
   markers: {
     'phnom-penh': REGIONS['phnom-penh'].projects,
     melbourne: REGIONS['melbourne'].projects,
@@ -48,6 +51,7 @@ export const useGameStore = create<GameState>((set) => ({
     set((s) => ({ facing: x || y ? { x, y } : s.facing })),
   setEditMode: (v) =>
     set({ editMode: v, pendingCoords: null, editingMarkerId: null }),
+  setMapReady: (v) => set({ mapReady: v }),
   setMarkers: (region, markers) =>
     set((s) => ({ markers: { ...s.markers, [region]: markers } })),
   setPendingCoords: (coords) =>

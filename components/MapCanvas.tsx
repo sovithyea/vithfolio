@@ -108,11 +108,15 @@ export default function MapCanvas() {
   useEffect(() => {
     if (!map) return;
     setMapInstance(map);
-    // Persist pinch zoom to settingsStore so it survives region switches.
-    // The guard in the zoom-sync effect below prevents a feedback loop.
+    useGameStore.getState().setMapReady(true);
     const onZoomEnd = () => useSettingsStore.getState().setZoom(map.getZoom());
     map.on('zoomend', onZoomEnd);
-    return () => { map.off('zoomend', onZoomEnd); setMapInstance(null); map.remove(); };
+    return () => {
+      map.off('zoomend', onZoomEnd);
+      useGameStore.getState().setMapReady(false);
+      setMapInstance(null);
+      map.remove();
+    };
   }, [map]);
 
   useEffect(() => {
