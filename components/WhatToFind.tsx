@@ -7,6 +7,7 @@ import { useSettingsStore } from '@/stores/settingsStore';
 import { REGIONS } from '@/lib/regions';
 import { panToMarker } from '@/lib/travel';
 import { useDismiss } from '@/hooks/useDismiss';
+import { useMobile } from '@/hooks/useMobile';
 
 const REGION_LABELS: Record<string, string> = {
   'phnom-penh': 'Phnom Penh',
@@ -19,13 +20,13 @@ function Checkbox({ checked, accent }: { checked: boolean; accent: string }) {
       <rect
         x="0.75" y="0.75" width="12.5" height="12.5" rx="3"
         fill={checked ? accent : 'none'}
-        stroke={checked ? accent : '#6B5D4F'}
+        stroke={checked ? accent : '#8a7a63'}
         strokeWidth="1.5"
       />
       {checked && (
         <path
           d="M3 7 L6 10 L11 4"
-          stroke="#FAF3E8"
+          stroke="#FBF5EA"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -35,18 +36,43 @@ function Checkbox({ checked, accent }: { checked: boolean; accent: string }) {
   );
 }
 
+// compass icon: terracotta square with a northeast-pointing arrow
+function CompassIcon({ open, accent }: { open: boolean; accent: string }) {
+  return (
+    <div style={{
+      width: 44, height: 44,
+      borderRadius: 12,
+      background: open ? '#3F3226' : '#C96A43',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      boxShadow: '0 4px 10px rgba(63,50,38,0.3)',
+      transform: 'rotate(-2deg)',
+      transition: 'background 0.2s',
+    }}>
+      {/* CSS-triangle northeast arrow */}
+      <div style={{
+        width: 0, height: 0,
+        borderLeft: '8px solid transparent',
+        borderRight: '8px solid transparent',
+        borderBottom: `13px solid ${open ? '#C96A43' : '#FBF5EA'}`,
+        transform: 'rotate(45deg) translate(1px, -1px)',
+        transition: 'border-bottom-color 0.2s',
+      }} />
+    </div>
+  );
+}
+
 export default function WhatToFind() {
   const [open, setOpen] = useState(false);
+  const mobile = useMobile();
   const panelRef = useRef<HTMLDivElement>(null);
   useDismiss(panelRef, () => setOpen(false), open);
 
-  const currentRegion = useGameStore((s) => s.currentRegion);
-  const markers = useGameStore((s) => s.markers[currentRegion] ?? []);
-  const visitedMarkers = useSettingsStore((s) => s.visitedMarkers);
-  const toggleVisited = useSettingsStore((s) => s.toggleVisited);
-  const accent = REGIONS[currentRegion].accentColor;
+  const currentRegion   = useGameStore((s) => s.currentRegion);
+  const markers         = useGameStore((s) => s.markers[currentRegion] ?? []);
+  const visitedMarkers  = useSettingsStore((s) => s.visitedMarkers);
+  const toggleVisited   = useSettingsStore((s) => s.toggleVisited);
+  const accent          = REGIONS[currentRegion].accentColor;
 
-  // group by district, "Other" last
   const grouped = markers.reduce<Record<string, typeof markers>>((acc, m) => {
     const d = m.district ?? 'Other';
     acc[d] = [...(acc[d] ?? []), m];
@@ -58,38 +84,38 @@ export default function WhatToFind() {
     return a.localeCompare(b);
   });
 
+  // on mobile: compass is decorative (no panel, smaller), bottom sheet handles places
+  if (mobile) {
+    return (
+      <div style={{ position: 'fixed', top: 14, left: 14, zIndex: 40, pointerEvents: 'none' }}>
+        <div style={{
+          width: 36, height: 36, borderRadius: 10, background: '#C96A43',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 3px 8px rgba(63,50,38,0.3)', transform: 'rotate(-2deg)',
+        }}>
+          <div style={{
+            width: 0, height: 0,
+            borderLeft: '7px solid transparent', borderRight: '7px solid transparent',
+            borderBottom: '11px solid #FBF5EA',
+            transform: 'rotate(45deg) translate(1px,-1px)',
+          }} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div ref={panelRef} style={{ position: 'fixed', top: 16, left: 16, zIndex: 40 }}>
-      {/* envelope toggle button */}
       <button
         onClick={() => setOpen((o) => !o)}
-        title="What to Find"
-        style={{
-          display: 'block',
-          background: '#FAF3E8',
-          border: `1px solid ${open ? accent : '#E8DCC8'}`,
-          borderRadius: 10,
-          padding: '7px 10px',
-          boxShadow: '0 1px 6px rgba(58,46,38,0.12)',
-          cursor: 'pointer',
-          transition: 'opacity 0.15s, border-color 0.15s',
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.8')}
+        title="Places"
+        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'block' }}
+        onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
         onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
       >
-        <svg width="28" height="20" viewBox="0 0 28 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="0.75" y="0.75" width="26.5" height="18.5" rx="2.5"
-            fill="#FAF3E8" stroke={open ? accent : '#E8DCC8'} strokeWidth="1.5"/>
-          <path d="M1 1 L14 9.5 L27 1"
-            stroke="#3A2E26" strokeWidth="1" strokeLinejoin="round" opacity="0.35" fill="none"/>
-          <path d="M1 19.25 L9 12.5" stroke="#3A2E26" strokeWidth="1" opacity="0.2"/>
-          <path d="M27 19.25 L19 12.5" stroke="#3A2E26" strokeWidth="1" opacity="0.2"/>
-          <circle cx="14" cy="13" r="4.5" fill={accent} opacity="0.85"/>
-          <circle cx="14" cy="13" r="2.5" fill={accent}/>
-        </svg>
+        <CompassIcon open={open} accent={accent} />
       </button>
 
-      {/* unfolded panel */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -99,50 +125,56 @@ export default function WhatToFind() {
             transition={{ duration: 0.22, ease: 'easeOut' }}
             style={{
               marginTop: 8,
-              background: '#FAF3E8',
-              border: '1px solid #E8DCC8',
+              background: '#FBF5EA',
+              border: '1.5px dashed #C9B08A',
               borderRadius: 14,
-              boxShadow: '0 4px 20px rgba(58,46,38,0.18)',
-              minWidth: 230,
-              maxWidth: 270,
+              boxShadow: '0 8px 20px rgba(63,50,38,0.18)',
+              minWidth: 200,
+              maxWidth: 240,
               overflow: 'hidden',
               transformOrigin: 'top left',
+              transform: 'rotate(-0.5deg)',
             }}
           >
             {/* header */}
-            <div style={{ padding: '12px 16px 10px', borderBottom: '1px solid #E8DCC8' }}>
+            <div style={{ padding: '12px 16px 10px', borderBottom: '1px solid #EEE1CB' }}>
               <p style={{
                 margin: 0,
-                fontSize: 10,
-                fontWeight: 600,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                fontFamily: 'var(--font-fraunces, serif)',
-                color: accent,
+                fontFamily: 'var(--font-caveat, cursive)',
+                fontWeight: 700,
+                fontSize: 20,
+                color: '#C96A43',
               }}>
-                What to Find
+                Places
               </p>
-              <p style={{ margin: '1px 0 0', fontSize: 12, color: '#3A2E26', fontFamily: 'var(--font-fraunces, serif)' }}>
+              <p style={{
+                margin: '1px 0 0',
+                fontFamily: 'var(--font-caveat, cursive)',
+                fontWeight: 600,
+                fontSize: 14,
+                color: '#3F3226',
+              }}>
                 {REGION_LABELS[currentRegion]}
               </p>
-              <p style={{ margin: '4px 0 0', fontSize: 11, color: '#6B5D4F' }}>Things to find:</p>
             </div>
 
-            {/* districts + markers */}
+            {/* marker list */}
             <div style={{ padding: '10px 16px 14px', display: 'flex', flexDirection: 'column', gap: 12 }}>
               {markers.length === 0 ? (
-                <p style={{ margin: 0, fontSize: 12, color: '#6B5D4F' }}>No markers yet.</p>
+                <p style={{ margin: 0, fontSize: 12, fontStyle: 'italic', color: '#8a7a63' }}>
+                  Nothing here yet.
+                </p>
               ) : (
                 sortedDistricts.map((district) => (
                   <div key={district}>
                     <p style={{
                       margin: '0 0 5px',
-                      fontSize: 9,
+                      fontFamily: 'var(--font-caveat, cursive)',
                       fontWeight: 700,
-                      letterSpacing: '0.12em',
+                      fontSize: 12,
+                      letterSpacing: '0.1em',
                       textTransform: 'uppercase',
-                      fontFamily: 'var(--font-fraunces, serif)',
-                      color: '#6B5D4F',
+                      color: '#8a7a63',
                     }}>
                       {district}
                     </p>
@@ -150,46 +182,30 @@ export default function WhatToFind() {
                       {grouped[district].map((m) => {
                         const visited = visitedMarkers.includes(m.id);
                         return (
-                          <div
-                            key={m.id}
-                            style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-                          >
-                            {/* checkbox toggle */}
+                          <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <button
                               onClick={() => toggleVisited(m.id)}
                               title={visited ? 'Mark as not found' : 'Mark as found'}
                               style={{
-                                background: 'none',
-                                border: 'none',
-                                padding: 0,
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                transition: 'opacity 0.12s',
+                                background: 'none', border: 'none', padding: 0,
+                                cursor: 'pointer', display: 'flex', alignItems: 'center',
                               }}
-                              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.7')}
-                              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
                             >
                               <Checkbox checked={visited} accent={accent} />
                             </button>
-
-                            {/* title — click to pan */}
                             <button
                               onClick={() => { panToMarker(m.lng, m.lat); setOpen(false); }}
                               style={{
-                                background: 'none',
-                                border: 'none',
-                                padding: 0,
-                                cursor: 'pointer',
-                                textAlign: 'left',
-                                fontSize: 13,
-                                color: '#3A2E26',
-                                opacity: visited ? 0.45 : 1,
+                                background: 'none', border: 'none', padding: 0,
+                                cursor: 'pointer', textAlign: 'left',
+                                fontSize: 13, color: '#3F3226',
+                                fontFamily: 'var(--font-lora, serif)',
+                                opacity: visited ? 0.4 : 1,
                                 textDecoration: visited ? 'line-through' : 'none',
                                 transition: 'opacity 0.12s',
                               }}
-                              onMouseEnter={(e) => (e.currentTarget.style.opacity = visited ? '0.3' : '0.65')}
-                              onMouseLeave={(e) => (e.currentTarget.style.opacity = visited ? '0.45' : '1')}
+                              onMouseEnter={(e) => (e.currentTarget.style.opacity = visited ? '0.25' : '0.65')}
+                              onMouseLeave={(e) => (e.currentTarget.style.opacity = visited ? '0.4' : '1')}
                             >
                               {m.title}
                             </button>

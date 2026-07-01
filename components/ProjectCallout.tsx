@@ -34,15 +34,14 @@ function useMarkerScreenPosition(lng: number | undefined, lat: number | undefine
 }
 
 export default function ProjectCallout() {
-  const activeProject = useGameStore((s) => s.activeProject);
-  const hoveredProject = useGameStore((s) => s.hoveredProject);
-  const currentRegion = useGameStore((s) => s.currentRegion);
-  const markers = useGameStore((s) => s.markers[currentRegion] ?? []);
+  const activeProject    = useGameStore((s) => s.activeProject);
+  const hoveredProject   = useGameStore((s) => s.hoveredProject);
+  const currentRegion    = useGameStore((s) => s.currentRegion);
+  const markers          = useGameStore((s) => s.markers[currentRegion] ?? []);
   const setExpandedProject = useGameStore((s) => s.setExpandedProject);
 
   const visibleId = activeProject ?? hoveredProject;
-  const project = visibleId ? markers.find((p) => p.id === visibleId) : null;
-
+  const project   = visibleId ? markers.find((p) => p.id === visibleId) : null;
   const screenPos = useMarkerScreenPosition(project?.lng, project?.lat);
 
   return (
@@ -50,28 +49,43 @@ export default function ProjectCallout() {
       {project && screenPos && (
         <motion.div
           key={project.id}
-          initial={{ opacity: 0, scale: 0.9, y: 6 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 6 }}
+          initial={{ opacity: 0, y: 8, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 8, scale: 0.95 }}
           transition={{ duration: 0.18, ease: 'easeOut' }}
-          className="fixed z-20 w-64"
-          style={{
-            top: screenPos.y - 90,
-            left: screenPos.x + 28,
-          }}
+          className="fixed z-20 w-56"
+          style={{ top: screenPos.y - 100, left: screenPos.x + 30 }}
           onMouseEnter={cancelHoverClear}
-          onMouseLeave={scheduleHoverClear}
+          onMouseLeave={() => scheduleHoverClear()}
         >
           <div
             className="rounded-xl px-4 py-3"
-            style={{ background: '#FAF3E8', border: '1px solid #E8DCC8', boxShadow: '0 4px 14px rgba(58,46,38,0.15)' }}
+            style={{
+              background: '#FBF5EA',
+              border: '1.5px dashed #C9B08A',
+              boxShadow: '0 8px 20px rgba(63,50,38,0.18)',
+              transform: 'rotate(-0.5deg)',
+            }}
           >
-            <h3 className="font-serif text-base mb-1" style={{ color: '#3A2E26' }}>{project.title}</h3>
-            <p className="text-xs leading-snug mb-2" style={{ color: '#6B5D4F' }}>{project.blurb}</p>
+            <h3 className="font-serif text-base mb-1 font-semibold" style={{ color: '#3F3226' }}>
+              {project.title}
+            </h3>
+            <p className="text-xs leading-snug mb-3" style={{ color: '#5b4c3a' }}>
+              {project.blurb}
+            </p>
             <button
               onClick={() => setExpandedProject(project.id)}
-              className="text-xs font-medium flex items-center gap-1 transition-opacity hover:opacity-70"
-              style={{ color: '#C97A4A' }}
+              className="transition-opacity hover:opacity-70"
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                fontFamily: 'var(--font-caveat, cursive)',
+                fontWeight: 700,
+                fontSize: 16,
+                color: '#C96A43',
+              }}
             >
               Expand ↗
             </button>

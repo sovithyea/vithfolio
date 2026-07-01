@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
-import { Fraunces } from "next/font/google";
+import { Lora, Caveat } from "next/font/google";
 import "./globals.css";
 
-const fraunces = Fraunces({
+const lora = Lora({
   subsets: ["latin"],
-  variable: "--font-fraunces",
+  variable: "--font-lora",
+  display: "swap",
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  variable: "--font-caveat",
   display: "swap",
 });
 
@@ -19,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={fraunces.variable}>
+    <html lang="en" className={`${lora.variable} ${caveat.variable}`}>
       <body>{children}</body>
     </html>
   );

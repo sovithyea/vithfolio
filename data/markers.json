@@ -30,5 +30,17 @@
       "images": []
     }
   ],
-  "melbourne": []
+  "melbourne": [
+    {
+      "id": "boolshitasfas-1782865142909",
+      "lng": 144.96165160833897,
+      "lat": -37.81104025456074,
+      "title": "boolshitasfas",
+      "blurb": "fsafSAFS",
+      "district": "",
+      "description": "",
+      "links": [],
+      "images": []
+    }
+  ]
 }

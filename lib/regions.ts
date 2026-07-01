@@ -20,6 +20,15 @@ export type Region = {
   projects: ProjectMarker[];
 };
 
+export const MAP_STYLES: { id: string; label: string }[] = [
+  { id: 'stamen_watercolor', label: 'Watercolor' },
+  { id: 'stamen_toner', label: 'Toner' },
+  { id: 'stamen_toner_lite', label: 'Toner Lite' },
+  { id: 'stamen_terrain', label: 'Terrain' },
+  { id: 'alidade_smooth', label: 'Smooth' },
+  { id: 'alidade_smooth_dark', label: 'Smooth Dark' },
+];
+
 export function getStyleUrl(styleId: string): string {
   const key = process.env.NEXT_PUBLIC_STADIA_KEY;
   const base = `https://tiles.stadiamaps.com/styles/${styleId}.json`;
@@ -34,7 +43,7 @@ export const REGIONS: Record<string, Region> = {
     // All 14 khan: Daun Penh → Sensok north, Dangkao south, Prek Pnov west, Chbar Ampov east
     bounds: [[104.79, 11.46], [104.99, 11.68]],
     styleId: 'stamen_watercolor',
-    accentColor: '#f59e0b',
+    accentColor: '#C96A43',
     projects: [
       {
         id: 'foodraccoon',
@@ -60,7 +69,7 @@ export const REGIONS: Record<string, Region> = {
     zoom: 15,
     // CBD + inner north (Brunswick) + east to Springvale — no far west
     bounds: [[144.90, -37.98], [145.18, -37.74]],
-    styleId: 'stamen_toner',
+    styleId: 'stamen_watercolor',
     accentColor: '#14b8a6',
     projects: [],
   },
