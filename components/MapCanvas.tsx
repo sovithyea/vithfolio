@@ -67,12 +67,9 @@ function createMarkerElement(p: ProjectMarker, color: string, map: maplibregl.Ma
     scheduleHoverClear();
   });
 
+  // Click opens the panel directly — no proximity gate needed for mouse/tap.
   outer.addEventListener('click', () => {
-    const markerPx = map.project([p.lng, p.lat]);
-    const center   = map.project(map.getCenter());
-    if (Math.hypot(center.x - markerPx.x, center.y - markerPx.y) < 40) {
-      useGameStore.getState().setActiveProject(p.id);
-    }
+    useGameStore.getState().setExpandedProject(p.id);
   });
 
   return outer;
@@ -101,8 +98,9 @@ export default function MapCanvas() {
       dragRotate: false,
       keyboard: false,
       doubleClickZoom: false,
-      touchZoomRotate: false,
+      touchZoomRotate: true,  // pinch-to-zoom enabled; rotate disabled below
     });
+    m.touchZoomRotate.disableRotation(); // zoom only, no two-finger rotate
     m.setMaxBounds(region.bounds);
     m.on('load', () => { setMap(m); });
   };
@@ -110,11 +108,17 @@ export default function MapCanvas() {
   useEffect(() => {
     if (!map) return;
     setMapInstance(map);
-    return () => { setMapInstance(null); map.remove(); };
+    // Persist pinch zoom to settingsStore so it survives region switches.
+    // The guard in the zoom-sync effect below prevents a feedback loop.
+    const onZoomEnd = () => useSettingsStore.getState().setZoom(map.getZoom());
+    map.on('zoomend', onZoomEnd);
+    return () => { map.off('zoomend', onZoomEnd); setMapInstance(null); map.remove(); };
   }, [map]);
 
   useEffect(() => {
     if (!map) return;
+    // Guard: skip if map is already at this zoom (e.g. just updated by pinch zoomend).
+    if (Math.abs(map.getZoom() - zoom) < 0.01) return;
     map.setZoom(zoom);
   }, [map, zoom]);
 

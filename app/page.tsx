@@ -8,7 +8,6 @@ import RegionSwitcher from '@/components/RegionSwitcher';
 import WhatToFind from '@/components/WhatToFind';
 import OnboardingTooltip from '@/components/OnboardingTooltip';
 import TouchDPad from '@/components/TouchDPad';
-import MobileBottomSheet from '@/components/MobileBottomSheet';
 
 export default function Home() {
   return (
@@ -31,7 +30,6 @@ export default function Home() {
       <RegionSwitcher />
       <WhatToFind />
       <TouchDPad />
-      <MobileBottomSheet />
       <EditOverlay />
     </>
   );

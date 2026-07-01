@@ -6,7 +6,7 @@ export function cancelHoverClear() {
   if (timer !== null) { clearTimeout(timer); timer = null; }
 }
 
-export function scheduleHoverClear(delay = 150) {
+export function scheduleHoverClear(delay = 600) {
   cancelHoverClear();
   timer = setTimeout(() => {
     useGameStore.getState().setHoveredProject(null);

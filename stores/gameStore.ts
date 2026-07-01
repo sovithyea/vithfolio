@@ -40,11 +40,7 @@ export const useGameStore = create<GameState>((set) => ({
   pendingCoords: null,
   editingMarkerId: null,
   setRegion: (id) => set({ currentRegion: id }),
-  setActiveProject: (id) =>
-    set((s) => ({
-      activeProject: id,
-      expandedProject: id === null ? null : s.expandedProject,
-    })),
+  setActiveProject: (id) => set({ activeProject: id }),
   setHoveredProject: (id) => set({ hoveredProject: id }),
   setExpandedProject: (id) => set({ expandedProject: id }),
   setTransitioning: (v) => set({ transitioning: v }),
