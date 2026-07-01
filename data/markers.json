@@ -1,0 +1,34 @@
+{
+  "phnom-penh": [
+    {
+      "id": "foodraccoon",
+      "lng": 104.9165,
+      "lat": 11.5703,
+      "title": "FoodRaccoon",
+      "district": "Toul Kork",
+      "blurb": "Food discovery app for Phnom Penh. Map-based exploration with real-time restaurant data.",
+      "description": "FoodRaccoon is a full-stack food discovery platform built for Phnom Penh. Users browse restaurants on an interactive Mapbox map, filter by cuisine and distance, and save favourites via Supabase-backed auth. Built with Next.js App Router, Supabase, Mapbox GL JS, Tailwind v4, and Zustand.",
+      "images": [
+        "/uploads/1782854672921.png"
+      ],
+      "links": [
+        {
+          "label": "GitHub",
+          "url": "https://github.com/sovithyea"
+        }
+      ]
+    },
+    {
+      "id": "test-1782858463664",
+      "lng": 104.89913558394693,
+      "lat": 11.572313716237048,
+      "title": "test",
+      "blurb": "blah bolah",
+      "district": "BKK",
+      "description": "",
+      "links": [],
+      "images": []
+    }
+  ],
+  "melbourne": []
+}
